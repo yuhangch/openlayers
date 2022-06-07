@@ -14,6 +14,15 @@
   opacity: 1;
   font-weight: bold;
 }
+.ol-tooltip-measure-closer {
+  font-weight: bolder;
+  color: #03899c;
+  padding-left: 4px;
+  cursor: pointer;
+}
+.ol-tooltip-measure-closer:hover {
+  color: #fd792a;
+}
 .ol-tooltip-static {
   background-color: #ffcc33;
   color: black;

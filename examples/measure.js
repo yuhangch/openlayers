@@ -7,6 +7,7 @@ import {LineString, Polygon} from '../src/ol/geom.js';
 import {OSM, Vector as VectorSource} from '../src/ol/source.js';
 import {Tile as TileLayer, Vector as VectorLayer} from '../src/ol/layer.js';
 import {getArea, getLength} from '../src/ol/sphere.js';
+import {getUid} from '../src/ol/index.js';
 import {unByKey} from '../src/ol/Observable.js';
 
 const raster = new TileLayer({
@@ -207,6 +208,35 @@ function addInteraction() {
   });
 
   draw.on('drawend', function () {
+    const featureUid = getUid(sketch);
+    const overlayUid = getUid(measureTooltip);
+    const closerElement = document.createElement('span');
+    closerElement.className = 'ol-tooltip-measure-closer';
+    closerElement.innerHTML = '✖';
+    closerElement.onmouseenter = function () {
+      map.removeInteraction(draw);
+    };
+    closerElement.onmousedown = function () {
+      addInteraction();
+    };
+    closerElement.onmouseleave = function () {
+      addInteraction();
+    };
+    closerElement.onclick = function () {
+      const overlays = map.getOverlays();
+      const targetOverlay = overlays
+        .getArray()
+        .find((i) => getUid(i) === overlayUid);
+      if (targetOverlay) {
+        overlays.remove(targetOverlay);
+      }
+      const feature = source.getFeatureByUid(featureUid);
+      if (feature) {
+        source.removeFeature(feature);
+      }
+    };
+
+    measureTooltipElement.appendChild(closerElement);
     measureTooltipElement.className = 'ol-tooltip ol-tooltip-static';
     measureTooltip.setOffset([0, -7]);
     // unset sketch
@@ -248,7 +278,7 @@ function createMeasureTooltip() {
     element: measureTooltipElement,
     offset: [0, -15],
     positioning: 'bottom-center',
-    stopEvent: false,
+    stopEvent: true,
     insertFirst: false,
   });
   map.addOverlay(measureTooltip);
